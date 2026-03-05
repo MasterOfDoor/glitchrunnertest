@@ -6,38 +6,45 @@ public class PlayerControllerFemale : MonoBehaviour {
     public float moveSpeed = 5f;
     public float dashSpeed = 15f; 
     public float dashDuration = 0.2f; 
-    public float jumpForce = 12f; // Zıplama gücü
+    public float jumpForce = 12f; // Zıplama gücü artık çalışacak!
+
+    [Header("Zemin Kontrolü")]
+    public Transform groundCheck; 
+    public float checkRadius = 0.2f; 
+    public LayerMask groundLayer; 
 
     private bool isDashing = false;
-    private bool isGrounded; // Yerde olup olmadığını kontrol etmek için
+    private bool isGrounded; 
 
     [Header("Bileşenler")]
     public Rigidbody2D rb;
     public Animator animator;
-    Vector2 movement;
+    
+    // Artık sadece X ekseninde hareket alacağımız için Vector2 yerine float kullanıyoruz
+    float moveInput; 
 
     void Update() {
         if (isDashing) return;
 
-        // Hareket Girdileri
-        movement.x = Input.GetAxisRaw("Horizontal");
-        movement.y = Input.GetAxisRaw("Vertical");
+        // Yere değme kontrolü
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, groundLayer);
 
-        // Animator Parametreleri (Büyük harf uyumlu)
-        if (movement != Vector2.zero) {
-            animator.SetFloat("Horizontal", movement.x);
-            animator.SetFloat("Vertical", movement.y);
+        // SADECE SAĞA SOLA HAREKET (Y eksenini sildik)
+        moveInput = Input.GetAxisRaw("Horizontal");
+
+        // Animator Parametreleri
+        if (moveInput != 0) {
+            animator.SetFloat("Horizontal", moveInput);
+            // Karakterin yönünü döndürmek için basit bir kontrol eklenebilir
         }
-        animator.SetFloat("Speed", movement.sqrMagnitude);
+        animator.SetFloat("Speed", Mathf.Abs(moveInput));
 
-        // --- TUŞ ATAMALARI ---
-
-        // SPACE: Zıplama (Hoplama)
+        // ZIPLAMA
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded) {
             Jump();
         }
 
-        // LEFT SHIFT: Dash
+        // DASH
         if (Input.GetKeyDown(KeyCode.LeftShift) && !isDashing) {
             StartCoroutine(Dash());
         }
@@ -45,16 +52,16 @@ public class PlayerControllerFemale : MonoBehaviour {
 
     void FixedUpdate() {
         if (isDashing) return;
-        rb.MovePosition(rb.position + movement.normalized * moveSpeed * Time.fixedDeltaTime);
         
-        // Basit bir yer kontrolü (Kendi sistemine göre güncelleyebilirsin)
-        // Karakterin hızı Y ekseninde çok küçükse "yerde" sayıyoruz
-        isGrounded = Mathf.Abs(rb.linearVelocity.y) < 0.01f;
+        // İŞTE ÇÖZÜM BURASI!
+        // X ekseninde bizim hızımız (moveInput * moveSpeed), Y ekseninde ise Unity'nin kendi fiziği (rb.linearVelocity.y) çalışsın diyoruz.
+        rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
     }
 
     void Jump() {
-        // Animator'daki "doJump" trigger'ını ateşler
         animator.SetTrigger("doJump"); 
+        // Y hızını sıfırlayıp öyle zıplama gücü ekliyoruz ki hep aynı yükseğe zıplasın
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0); 
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
     }
 
@@ -62,13 +69,13 @@ public class PlayerControllerFemale : MonoBehaviour {
         isDashing = true;
         animator.SetTrigger("doDash"); 
 
-        Vector2 dashDir = (movement == Vector2.zero) ? (Vector2)transform.right : movement.normalized;
-        rb.linearVelocity = dashDir * dashSpeed;
+        // Dash yönünü belirle
+        float dashDirection = (moveInput == 0) ? transform.localScale.x : moveInput;
+        rb.linearVelocity = new Vector2(dashDirection * dashSpeed, 0); // Dash atarken yerçekimini anlık yoksay
 
         yield return new WaitForSeconds(dashDuration);
 
         rb.linearVelocity = Vector2.zero;
         isDashing = false;
-        animator.SetFloat("Speed", movement.sqrMagnitude);
     }
 }
