@@ -14,16 +14,18 @@ public class PlayerControllerFemale : MonoBehaviour {
     public LayerMask groundLayer; 
 
     private bool isDashing = false;
+    private bool isDead = false;
     private bool isGrounded; 
 
     [Header("Bileşenler")]
     public Rigidbody2D rb;
     public Animator animator;
-    
+
     // Artık sadece X ekseninde hareket alacağımız için Vector2 yerine float kullanıyoruz
     float moveInput; 
 
     void Update() {
+        if (isDead) return;
         if (isDashing) return;
 
         // Yere değme kontrolü
@@ -77,5 +79,40 @@ public class PlayerControllerFemale : MonoBehaviour {
 
         rb.linearVelocity = Vector2.zero;
         isDashing = false;
+    }
+    // Bu metodu FixedUpdate veya Dash gibi diğer metodların bittiği yere, sınıfın içine ekle
+    private void OnTriggerEnter2D(Collider2D other) 
+    {
+        // Karakter boşluğa düşerse ve zaten ölmemişse
+        if (other.CompareTag("FallArea") && !isDead) 
+        {
+            StartCoroutine(DieAndRespawn());
+        }
+    }
+
+    IEnumerator DieAndRespawn()
+    {
+        isDead = true; // Karakterin öldüğünü sisteme söyle (hareket kilitlenir)
+        
+        // Karakterin yerçekimini ve fiziğini geçici olarak kapat ki ekrandan kayıp gitmesin
+        rb.linearVelocity = Vector2.zero;
+        rb.simulated = false; 
+
+        // 1. Ölüm animasyonunu oynat! 
+        // (Animator içinde ölüm Trigger'ının adını "doDie" yaptığını varsayıyorum)
+        animator.SetTrigger("doDie"); 
+
+        // 2. 1.5 Saniye bekle
+        yield return new WaitForSeconds(1.5f);
+
+        // 3. Karakteri SpawnPoint'e ışınla
+        transform.position = GameObject.Find("SpawnPoint").transform.position;
+        
+        // 4. Fiziği geri aç ve karakteri canlandır
+        rb.simulated = true;
+        isDead = false;
+        
+        // İsteğe bağlı: Canlanınca direkt durma animasyonuna geçsin dersen
+        // animator.Play("Idle"); 
     }
 }
