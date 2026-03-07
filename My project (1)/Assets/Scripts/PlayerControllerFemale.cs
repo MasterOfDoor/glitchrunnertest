@@ -90,29 +90,30 @@ public class PlayerControllerFemale : MonoBehaviour {
         }
     }
 
-    IEnumerator DieAndRespawn()
+   IEnumerator DieAndRespawn()
     {
-        isDead = true; // Karakterin öldüğünü sisteme söyle (hareket kilitlenir)
-        
-        // Karakterin yerçekimini ve fiziğini geçici olarak kapat ki ekrandan kayıp gitmesin
+        isDead = true; 
+        animator.SetBool("isDead", true);
+
         rb.linearVelocity = Vector2.zero;
         rb.simulated = false; 
 
-        // 1. Ölüm animasyonunu oynat! 
-        // (Animator içinde ölüm Trigger'ının adını "doDie" yaptığını varsayıyorum)
         animator.SetTrigger("doDie"); 
 
-        // 2. 1.5 Saniye bekle
-        yield return new WaitForSeconds(1.5f);
+        // 1. AŞAMA: Ölüm animasyonunun tamamlanmasını bekle (0.67 saniye)
+        yield return new WaitForSeconds(0.67f);
 
-        // 3. Karakteri SpawnPoint'e ışınla
+        // 2. AŞAMA: Yerde hareketsiz kalma süresi (İstediğin 0.4 saniye)
+        yield return new WaitForSeconds(0.4f);
+
+        // Toplamda 1.07 saniye sonra aşağıdaki dirilme kodları çalışacak
+        
         transform.position = GameObject.Find("SpawnPoint").transform.position;
         
-        // 4. Fiziği geri aç ve karakteri canlandır
         rb.simulated = true;
-        isDead = false;
+        isDead = false; 
         
-        // İsteğe bağlı: Canlanınca direkt durma animasyonuna geçsin dersen
-        // animator.Play("Idle"); 
+        animator.ResetTrigger("doDie"); 
+        animator.SetBool("isDead", false); 
     }
 }
