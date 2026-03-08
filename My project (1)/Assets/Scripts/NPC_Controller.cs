@@ -37,6 +37,12 @@ public class NPC_Controller : MonoBehaviour
             return;
         }
 
+        if (dialogCanvas == null)
+        {
+            Debug.LogError("Dialog Canvas atanmamış! Inspector panelinden NPC scriptine Canvas'ı sürükle.");
+            return;
+        }
+
         // Eğer balon kapalıysa aç ve ilk cümleyi yazdır
         if (!dialogCanvas.activeSelf)
         {
@@ -60,7 +66,10 @@ public class NPC_Controller : MonoBehaviour
 
     void Yazdir() 
     { 
-        dialogText.text = diyalogVerisi.cumleler[index]; 
+        if (dialogText != null)
+            dialogText.text = diyalogVerisi.cumleler[index];
+        else
+            Debug.LogWarning("Dialog Text atanmamış!");
     }
 
     private void OnTriggerEnter2D(Collider2D other) 
