@@ -3,40 +3,39 @@ using UnityEngine;
 public class InventoryManager : MonoBehaviour
 {
     [Header("Ayarlar")]
-    public GameObject inventoryPanel; // Eğer sürüklemezsen kod otomatik bulmaya çalışacak
+    [Tooltip("Boş bırakırsan E ile açılan matrix envanter paneli otomatik oluşturulur.")]
+    public GameObject inventoryPanel;
     public bool isInventoryOpen = false;
+
+    void Awake()
+    {
+        if (inventoryPanel == null)
+            inventoryPanel = GameObject.Find("InventoryPanel");
+
+        if (inventoryPanel == null)
+            inventoryPanel = InventoryPanelBuilder.Build();
+    }
 
     void Start()
     {
-        // Eğer Panel'i Inspector'dan sürüklemeyi unuttuysan, isme göre bulmaya çalışalım
-        if (inventoryPanel == null)
-        {
-            inventoryPanel = GameObject.Find("InventoryPanel"); 
-            // Hiyerarşideki panelinin adının "InventoryPanel" olduğundan emin ol!
-        }
-
-        // Başlangıçta her şeyi düzelt
         isInventoryOpen = false;
         if (inventoryPanel != null)
             inventoryPanel.SetActive(false);
-            
-        Time.timeScale = 1f; // Ekran gri/donuk kalmasın diye zamanı akıt
+        Time.timeScale = 1f;
     }
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.E))
-        {
             ToggleInventory();
-        }
     }
 
     public void ToggleInventory()
     {
         if (inventoryPanel == null)
         {
-            Debug.LogError("HATA: Envanter Paneli bulunamadı! Lütfen Hiyerarşiden sürükle.");
-            return;
+            inventoryPanel = InventoryPanelBuilder.Build();
+            if (inventoryPanel == null) return;
         }
 
         isInventoryOpen = !isInventoryOpen;
@@ -44,13 +43,13 @@ public class InventoryManager : MonoBehaviour
 
         if (isInventoryOpen)
         {
-            Time.timeScale = 0f; // Oyunu durdur
-            Cursor.visible = true; 
+            Time.timeScale = 0f;
+            Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
         }
         else
         {
-            Time.timeScale = 1f; // Oyunu başlat
+            Time.timeScale = 1f;
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
         }

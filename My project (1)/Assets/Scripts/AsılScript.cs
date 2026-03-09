@@ -61,10 +61,10 @@ public class AsılScript : MonoBehaviour
         bool isRunning = Input.GetKey(KeyCode.R);
         currentSpeed = isRunning ? runSpeed : walkSpeed;
 
-        // --- 4. SİLAH DEĞİŞTİRME ---
+        // --- 4. SİLAH DEĞİŞTİRME (sadece envanterde varsa) ---
         if (Input.GetKeyDown(KeyCode.Alpha1)) weaponType = 0;
-        if (Input.GetKeyDown(KeyCode.Alpha2)) weaponType = 1;
-        if (Input.GetKeyDown(KeyCode.Alpha3)) weaponType = 2;
+        if (Input.GetKeyDown(KeyCode.Alpha2) && GameState.Instance != null && GameState.Instance.HasItemInInventory("gun")) weaponType = 1;
+        if (Input.GetKeyDown(KeyCode.Alpha3) && GameState.Instance != null && GameState.Instance.HasItemInInventory("spear")) weaponType = 2;
 
         // --- 5. DASH (Shift) ---
         if (Input.GetKeyDown(KeyCode.LeftShift) && moveInput != Vector2.zero)
@@ -87,7 +87,13 @@ public class AsılScript : MonoBehaviour
     {
         if (inventoryPanel == null)
         {
-            Debug.LogError("LÜTFEN: Karakterin üstündeki Inventory Panel kutusuna Paneli sürükle!");
+            inventoryPanel = GameObject.Find("InventoryPanel");
+            if (inventoryPanel == null)
+                inventoryPanel = InventoryPanelBuilder.Build();
+        }
+        if (inventoryPanel == null)
+        {
+            Debug.LogError("Envanter paneli bulunamadı.");
             return;
         }
 

@@ -11,6 +11,8 @@ public class InventorySlotUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler
 {
     [Header("UI")]
     public Image iconImage;
+    [Tooltip("Item adı (Gun, Spear vb.) burada gösterilir.")]
+    public Text labelText;
 
     [HideInInspector] public int index;
     [HideInInspector] public InventoryUI inventory;
@@ -25,7 +27,10 @@ public class InventorySlotUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler
 
     public void Refresh(InventoryUI.SlotData data)
     {
-        if (data == null || string.IsNullOrEmpty(data.itemId) || data.icon == null || data.quantity <= 0)
+        if (labelText != null)
+            labelText.text = "";
+
+        if (data == null || string.IsNullOrEmpty(data.itemId) || data.quantity <= 0)
         {
             iconImage.enabled = false;
             iconImage.sprite = null;
@@ -34,13 +39,19 @@ public class InventorySlotUI : MonoBehaviour, IBeginDragHandler, IEndDragHandler
         {
             iconImage.enabled = true;
             iconImage.sprite = data.icon;
+            if (data.icon == null)
+                iconImage.color = new Color(0.3f, 0.7f, 0.35f);
+            else
+                iconImage.color = Color.white;
+            if (labelText != null)
+                labelText.text = ItemRegistry.GetDisplayName(data.itemId);
         }
     }
 
     bool HasItem()
     {
         var data = inventory != null ? inventory.GetSlot(index) : null;
-        return data != null && !string.IsNullOrEmpty(data.itemId) && data.icon != null && data.quantity > 0;
+        return data != null && !string.IsNullOrEmpty(data.itemId) && data.quantity > 0;
     }
 
     public void OnBeginDrag(PointerEventData eventData)

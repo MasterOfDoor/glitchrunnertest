@@ -14,7 +14,7 @@ namespace GlitchRunner.Inventory
         }
 
         [Header("Veri")]
-        [Tooltip("Bu listedeki eleman sayısı kadar slot beklenir.")]
+        [Tooltip("Bu listedeki eleman sayısı kadar slot beklenir. GameState varsa oradan doldurulur.")]
         public List<SlotData> slots = new List<SlotData>();
 
         [Header("UI")]
@@ -34,11 +34,49 @@ namespace GlitchRunner.Inventory
                 slots.Add(new SlotData());
             }
 
-            // Slotları bağla
+            // GameState varsa envanteri oradan senkronize et
+            if (GameState.Instance != null)
+            {
+                SyncFromGameState();
+                GameState.Instance.OnInventoryChanged += OnGameStateInventoryChanged;
+            }
+
+            // Slotları bağla ve göster
             for (int i = 0; i < slotUIs.Length; i++)
             {
                 slotUIs[i].Bind(this, i);
+                slotUIs[i].Refresh(GetSlot(i));
+            }
+        }
+
+        void OnDestroy()
+        {
+            if (GameState.Instance != null)
+                GameState.Instance.OnInventoryChanged -= OnGameStateInventoryChanged;
+        }
+
+        void OnGameStateInventoryChanged()
+        {
+            SyncFromGameState();
+            for (int i = 0; i < slotUIs.Length && i < slots.Count; i++)
                 slotUIs[i].Refresh(slots[i]);
+        }
+
+        /// <summary>
+        /// GameState'teki envanter verisini UI slot listesine kopyalar.
+        /// </summary>
+        public void SyncFromGameState()
+        {
+            if (GameState.Instance == null) return;
+            int n = GameState.Instance.InventorySlotCount;
+            while (slots.Count < n) slots.Add(new SlotData());
+            if (slots.Count > n) slots.RemoveRange(n, slots.Count - n);
+            for (int i = 0; i < n; i++)
+            {
+                var entry = GameState.Instance.GetInventorySlot(i);
+                slots[i].itemId = entry.itemId ?? "";
+                slots[i].quantity = entry.quantity;
+                slots[i].icon = ItemRegistry.GetIcon(slots[i].itemId);
             }
         }
 
@@ -54,9 +92,17 @@ namespace GlitchRunner.Inventory
             if (a < 0 || a >= slots.Count) return;
             if (b < 0 || b >= slots.Count) return;
 
-            var tmp = slots[a];
-            slots[a] = slots[b];
-            slots[b] = tmp;
+            if (GameState.Instance != null)
+            {
+                GameState.Instance.SwapInventorySlots(a, b);
+                SyncFromGameState();
+            }
+            else
+            {
+                var tmp = slots[a];
+                slots[a] = slots[b];
+                slots[b] = tmp;
+            }
 
             if (a < slotUIs.Length) slotUIs[a].Refresh(slots[a]);
             if (b < slotUIs.Length) slotUIs[b].Refresh(slots[b]);

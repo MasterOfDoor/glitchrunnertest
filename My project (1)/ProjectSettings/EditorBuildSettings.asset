@@ -8,6 +8,15 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/cpuorta.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
+  - enabled: 1
+    path: Assets/Scenes/Cpu giriş.unity
+    guid: abb515dc8e151564e99818a68ba9c90e
+  - enabled: 1
+    path: Assets/Scenes/CpuBazaar.unity
+    guid: d0ac45d558f399d4a9fed31314f68b2e
+  - enabled: 1
+    path: Assets/Scenes/MotherBoard.unity
+    guid: ef717c17deb79a345a2630d3d276f0c0
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0

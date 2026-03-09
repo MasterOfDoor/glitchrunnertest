@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Sahne geçişlerinde ve puzzle açılırken/kapanırken fade efekti.
@@ -64,6 +65,28 @@ public class SceneFader : MonoBehaviour
     {
         if (_busy) return;
         StartCoroutine(FadeOutInRoutine(midCallback, onComplete));
+    }
+
+    /// <summary>FadeOut → LoadSceneAsync(sahne) → FadeIn. Sahne geçişi için.</summary>
+    public void TransitionToScene(string sceneName, Action onComplete = null)
+    {
+        if (_busy) return;
+        StartCoroutine(TransitionRoutine(sceneName, onComplete));
+    }
+
+    IEnumerator TransitionRoutine(string sceneName, Action onComplete)
+    {
+        yield return FadeRoutine(0f, 1f, null);
+        var op = SceneManager.LoadSceneAsync(sceneName);
+        if (op != null)
+        {
+            while (!op.isDone)
+                yield return null;
+        }
+        else
+            SceneManager.LoadScene(sceneName);
+        yield return FadeRoutine(1f, 0f, null);
+        onComplete?.Invoke();
     }
 
     // ─────────────────────────────────────────────────────────────────────
