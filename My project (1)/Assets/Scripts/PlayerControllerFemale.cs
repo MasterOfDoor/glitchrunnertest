@@ -6,7 +6,7 @@ public class PlayerControllerFemale : MonoBehaviour {
     public float moveSpeed = 5f;
     public float dashSpeed = 15f; 
     public float dashDuration = 0.2f; 
-    public float jumpForce = 12f; // Zıplama gücü artık çalışacak!
+    public float jumpForce = 12f;
 
     [Header("Zemin Kontrolü")]
     public Transform groundCheck; 
@@ -21,49 +21,72 @@ public class PlayerControllerFemale : MonoBehaviour {
     public Rigidbody2D rb;
     public Animator animator;
 
-    // Artık sadece X ekseninde hareket alacağımız için Vector2 yerine float kullanıyoruz
     float moveInput; 
 
-    void Update() {
-        if (isDead) return;
-        if (isDashing) return;
+    void Start() {
+        rb = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
+    }
 
-        // Yere değme kontrolü
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, groundLayer);
+    void Update()
+    {
+        // 1. ADIM: Yer çekimi kontrolünü her şeyden önce yapıyoruz
+        // Eğer karakter 3. sahne bölgesindeyse (X > 115) yer çekimini kapat
+       // Sadece 3. sahne bölgesindeyken (X > 115) yer çekimini kapatıyoruz.
+    // Diğer yerlerde yer çekimi kaçsa (Inspector'dan ne ayarladıysan) öyle kalır.
+    if (transform.position.x > 47) 
+    {
+        rb.gravityScale = 0; 
+    }
+    else if (transform.position.x <= 47 && rb.gravityScale == 0)
+    {
+        rb.gravityScale = 1; 
+    }
 
-        // SADECE SAĞA SOLA HAREKET (Y eksenini sildik)
-        moveInput = Input.GetAxisRaw("Horizontal");
+        // 2. ADIM: Ölüm veya Dash sırasında diğer hareketleri engelle
+        if (isDead || isDashing) return;
 
-        // Animator Parametreleri
-        if (moveInput != 0) {
-            animator.SetFloat("Horizontal", moveInput);
-            // Karakterin yönünü döndürmek için basit bir kontrol eklenebilir
+        // --- TOP-DOWN (3. SAHNE) HAREKETİ ---
+        if (rb.gravityScale == 0) 
+        {
+            float moveX = Input.GetAxisRaw("Horizontal");
+            float moveY = Input.GetAxisRaw("Vertical");
+            
+            rb.linearVelocity = new Vector2(moveX, moveY).normalized * moveSpeed;
+
+            if (moveX != 0 || moveY != 0) {
+                animator.SetFloat("Horizontal", moveX);
+                animator.SetFloat("Vertical", moveY);
+                animator.SetFloat("Speed", 1);
+            } else {
+                animator.SetFloat("Speed", 0);
+            }
         }
-        animator.SetFloat("Speed", Mathf.Abs(moveInput));
+        // --- PLATFORMER (DİĞER SAHNELER) HAREKETİ ---
+        else 
+        {
+            moveInput = Input.GetAxisRaw("Horizontal");
+            rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
 
-        // ZIPLAMA
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded) {
-            Jump();
+            isGrounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, groundLayer);
+            
+            if (moveInput != 0) {
+                animator.SetFloat("Horizontal", moveInput);
+            }
+            animator.SetFloat("Speed", Mathf.Abs(moveInput));
+
+            if (Input.GetKeyDown(KeyCode.Space) && isGrounded) {
+                Jump();
+            }
         }
 
-        // DASH
         if (Input.GetKeyDown(KeyCode.LeftShift) && !isDashing) {
             StartCoroutine(Dash());
         }
     }
 
-    void FixedUpdate() {
-        if (isDashing) return;
-        
-        // İŞTE ÇÖZÜM BURASI!
-        // X ekseninde bizim hızımız (moveInput * moveSpeed), Y ekseninde ise Unity'nin kendi fiziği (rb.linearVelocity.y) çalışsın diyoruz.
-        rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
-    }
-
     void Jump() {
         animator.SetTrigger("doJump"); 
-        // Y hızını sıfırlayıp öyle zıplama gücü ekliyoruz ki hep aynı yükseğe zıplasın
-        rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0); 
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
     }
 
@@ -71,19 +94,27 @@ public class PlayerControllerFemale : MonoBehaviour {
         isDashing = true;
         animator.SetTrigger("doDash"); 
 
-        // Dash yönünü belirle
-        float dashDirection = (moveInput == 0) ? transform.localScale.x : moveInput;
-        rb.linearVelocity = new Vector2(dashDirection * dashSpeed, 0); // Dash atarken yerçekimini anlık yoksay
+        float originalGravity = rb.gravityScale;
+        rb.gravityScale = 0; 
+
+        // Dash yönü
+        float dashX = Input.GetAxisRaw("Horizontal");
+        float dashY = (originalGravity == 0) ? Input.GetAxisRaw("Vertical") : 0;
+        
+        Vector2 dashDir = new Vector2(dashX, dashY).normalized;
+        if(dashDir == Vector2.zero) dashDir = new Vector2(transform.localScale.x, 0);
+
+        rb.linearVelocity = dashDir * dashSpeed;
 
         yield return new WaitForSeconds(dashDuration);
 
+        rb.gravityScale = originalGravity; 
         rb.linearVelocity = Vector2.zero;
         isDashing = false;
     }
-    // Bu metodu FixedUpdate veya Dash gibi diğer metodların bittiği yere, sınıfın içine ekle
+
     private void OnTriggerEnter2D(Collider2D other) 
     {
-        // Karakter boşluğa düşerse ve zaten ölmemişse
         if (other.CompareTag("FallArea") && !isDead) 
         {
             StartCoroutine(DieAndRespawn());
@@ -94,26 +125,18 @@ public class PlayerControllerFemale : MonoBehaviour {
     {
         isDead = true; 
         animator.SetBool("isDead", true);
-
         rb.linearVelocity = Vector2.zero;
         rb.simulated = false; 
 
         animator.SetTrigger("doDie"); 
 
-        // 1. AŞAMA: Ölüm animasyonunun tamamlanmasını bekle (0.67 saniye)
-        yield return new WaitForSeconds(0.67f);
-
-        // 2. AŞAMA: Yerde hareketsiz kalma süresi (İstediğin 0.4 saniye)
-        yield return new WaitForSeconds(0.4f);
-
-        // Toplamda 1.07 saniye sonra aşağıdaki dirilme kodları çalışacak
+        yield return new WaitForSeconds(1.07f); 
         
-        transform.position = GameObject.Find("SpawnPoint").transform.position;
+        GameObject spawn = GameObject.Find("SpawnPoint");
+        if(spawn != null) transform.position = spawn.transform.position;
         
         rb.simulated = true;
         isDead = false; 
-        
-        animator.ResetTrigger("doDie"); 
         animator.SetBool("isDead", false); 
     }
 }
