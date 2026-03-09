@@ -39,8 +39,8 @@ public class AsılScript : MonoBehaviour
 
     void Update()
     {
-        // --- 1. ENVANTER AÇMA/KAPATMA ---
-        if (Input.GetKeyDown(KeyCode.E))
+        // --- 1. ENVANTER AÇMA/KAPATMA (Tab) ---
+        if (Input.GetKeyDown(KeyCode.Tab))
         {
             ToggleInventory();
         }

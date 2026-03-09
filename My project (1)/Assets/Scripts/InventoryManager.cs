@@ -3,7 +3,7 @@ using UnityEngine;
 public class InventoryManager : MonoBehaviour
 {
     [Header("Ayarlar")]
-    [Tooltip("Boş bırakırsan E ile açılan matrix envanter paneli otomatik oluşturulur.")]
+    [Tooltip("Boş bırakırsan Tab ile açılan envanter paneli otomatik oluşturulur.")]
     public GameObject inventoryPanel;
     public bool isInventoryOpen = false;
 
@@ -26,7 +26,7 @@ public class InventoryManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.Tab))
             ToggleInventory();
     }
 
