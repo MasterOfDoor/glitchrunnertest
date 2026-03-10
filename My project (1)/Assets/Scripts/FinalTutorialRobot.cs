@@ -13,7 +13,8 @@ public class FinalTutorialRobot : MonoBehaviour
     public Animator anim;
 
     [Header("Hareket")]
-    [Tooltip("Aynı objeye Stay In Place component'i eklersen robot yerinde kalır; yoksa oyuncuya yürür.")]
+    [Tooltip("İşaretlersen robot yerinde kalır, sen gelip E ile etkileşirsin. İşaretlemezsen robot sana doğru yürür (varsayılan).")]
+    public bool stayInPlace = false;
     public float triggerDistance = 3f;
     public float moveSpeed = 3f;
     public float runSpeed = 8f;
@@ -21,14 +22,12 @@ public class FinalTutorialRobot : MonoBehaviour
     private RobotLabel _robotLabel;
     private Rigidbody2D _rb;
     private bool _isEscaping;
-    private StayInPlace _stayInPlace;
 
     void Start()
     {
         if (anim == null) anim = GetComponent<Animator>();
         _rb = GetComponent<Rigidbody2D>();
         _robotLabel = GetComponentInChildren<RobotLabel>(true);
-        _stayInPlace = GetComponent<StayInPlace>();
         _isEscaping = false;
         if (player == null)
         {
@@ -56,7 +55,7 @@ public class FinalTutorialRobot : MonoBehaviour
         if (anim != null)
         {
             bool moving = _isEscaping;
-            if (_stayInPlace == null && !_isEscaping)
+            if (!stayInPlace && !_isEscaping)
                 moving = _robotLabel != null && !_robotLabel.IsDialogueFinished && Vector3.Distance(player.position, transform.position) > triggerDistance;
             anim.SetBool("isWalking", moving);
         }
@@ -80,7 +79,7 @@ public class FinalTutorialRobot : MonoBehaviour
             MoveTo(escapePoint.position, runSpeed);
             return;
         }
-        if (!_isEscaping && _stayInPlace == null)
+        if (!_isEscaping && !stayInPlace)
         {
             float dist = Vector3.Distance(player.position, transform.position);
             if (dist > triggerDistance)

@@ -16,7 +16,8 @@ public class SecondTutorialRobot : MonoBehaviour
     public Animator anim;
 
     [Header("Hareket")]
-    [Tooltip("Aynı objeye Stay In Place component'i eklersen robot yerinde kalır; yoksa oyuncuya yürür.")]
+    [Tooltip("İşaretlersen robot yerinde kalır, sen gelip E ile etkileşirsin. İşaretlemezsen robot sana doğru yürür (varsayılan).")]
+    public bool stayInPlace = false;
     public float triggerDistance = 3f;
     public float moveSpeed = 3f;
     public float runSpeed = 6f;
@@ -28,7 +29,6 @@ public class SecondTutorialRobot : MonoBehaviour
 
     private RobotLabel _robotLabel;
     private Rigidbody2D _rb;
-    private StayInPlace _stayInPlace;
     private enum State { Approaching, Talking, GoingToFall, Dead }
     private State _state = State.Approaching;
     private bool _hasTriggeredDeath;
@@ -38,7 +38,6 @@ public class SecondTutorialRobot : MonoBehaviour
         if (anim == null) anim = GetComponent<Animator>();
         _rb = GetComponent<Rigidbody2D>();
         _robotLabel = GetComponentInChildren<RobotLabel>(true);
-        _stayInPlace = GetComponent<StayInPlace>();
         if (player == null)
         {
             var p = GameObject.FindWithTag("Player");
@@ -67,7 +66,7 @@ public class SecondTutorialRobot : MonoBehaviour
         if (player == null) return;
 
         if (anim != null)
-            anim.SetBool("isWalking", (_state == State.Approaching && _stayInPlace == null) || _state == State.GoingToFall);
+            anim.SetBool("isWalking", (_state == State.Approaching && !stayInPlace) || _state == State.GoingToFall);
 
         if (_state == State.Dead) return;
 
@@ -102,7 +101,7 @@ public class SecondTutorialRobot : MonoBehaviour
             MoveTo(fallTarget.position, runSpeed);
             return;
         }
-        if (_stayInPlace == null && _state == State.Approaching)
+        if (!stayInPlace && _state == State.Approaching)
         {
             float dist = Vector3.Distance(transform.position, player.position);
             if (dist > triggerDistance)

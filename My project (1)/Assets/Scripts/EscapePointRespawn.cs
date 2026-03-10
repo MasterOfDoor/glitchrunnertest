@@ -16,10 +16,6 @@ public class EscapePointRespawn : MonoBehaviour
     public Transform player;
     [Tooltip("Spawn + fade-in bittikten sonra aktif edilecek ikinci robot (SecondTutorialRobot). Başta inactive olmalı.")]
     public GameObject secondRobotToEnable;
-    [Tooltip("Oyun başında SpawnPoint'te canlandıktan sonra da ikinci robotu aç. Kapalıysa sadece escape sonrası açılır.")]
-    public bool enableSecondRobotAtStart = true;
-    [Tooltip("Oyun başında ikinci robotu bu süre (saniye) sonra açar.")]
-    public float enableSecondRobotAtStartDelay = 1f;
 
     [Header("Fade")]
     public float fadeOutDuration = 0.6f;
@@ -56,16 +52,6 @@ public class EscapePointRespawn : MonoBehaviour
         var col = GetComponent<Collider2D>();
         if (col != null && !col.isTrigger)
             col.isTrigger = true;
-
-        if (enableSecondRobotAtStart && secondRobotToEnable != null && !secondRobotToEnable.activeSelf)
-            StartCoroutine(EnableSecondRobotAfterDelay(enableSecondRobotAtStartDelay));
-    }
-
-    IEnumerator EnableSecondRobotAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        if (secondRobotToEnable != null && !secondRobotToEnable.activeSelf)
-            secondRobotToEnable.SetActive(true);
     }
 
     void OnTriggerEnter2D(Collider2D other)
