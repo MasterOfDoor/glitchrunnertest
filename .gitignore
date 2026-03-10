@@ -3,9 +3,8 @@
 **/[Tt]emp/
 **/[Oo]bj/
 **/[Bb]uild/
-!**/[Bb]uilds/[Ww][Ee][Bb][Gg][Ll]/[Bb]uild/
-**/[Bb]uilds/*
-!**/[Bb]uilds/[Ww][Ee][Bb][Gg][Ll]/
+!webgl-deploy/[Bb]uild/
+**/[Bb]uilds/
 **/[Ll]ogs/
 **/[Uu]ser[Ss]ettings/
 **/[Mm]emoryCaptures/

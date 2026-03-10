@@ -8,26 +8,28 @@ Bu dosyada: WebGL build alma, Vercel’e yükleme ve **Vercel’de ayarlaman ger
 
 1. **File → Build Settings**
 2. **Platform:** WebGL → **Switch Platform**
-3. **Build** veya **Build And Run** → çıktıyı **`My project (1)/Builds/WEBGL`** klasörüne al (mevcut deploy klasörünü kullan veya üzerine yaz).
+3. **Build** veya **Build And Run** → çıktıyı **`My project (1)/Builds/WEBGL`** klasörüne al.
 
-Çıktı: `index.html`, `Build/`, `TemplateData/`. Sonra bu klasörde `vercel.json` ve `api/` zaten var; commit + push yap, Vercel Root Directory = `My project (1)/Builds/WEBGL` olsun.
+Çıktı: `index.html`, `Build/`, `TemplateData/`. Sonra bu dosyaları **repo kökündeki `webgl-deploy`** klasörüne kopyala (içindeki `index.html`, `Build/`, `TemplateData/` üzerine yaz). `webgl-deploy` içinde `vercel.json` ve `api/` zaten var; commit + push yap.
 
 ---
 
-## 2. Deploy klasörü (Builds/WEBGL)
+## 2. Deploy klasörü (webgl-deploy)
 
-Build çıktın **`My project (1)/Builds/WEBGL/`** klasöründe. Bu klasörde şunlar olmalı:
+Vercel **Serverless Function adlarında boşluk kabul etmez.** Bu yüzden deploy klasörü repo kökünde **`webgl-deploy`** (boşluksuz).
+
+Bu klasörde olması gerekenler:
 
 - Unity çıktısı: `index.html`, `Build/`, `TemplateData/`
-- **`vercel.json`** ve **`api/config.js`** — projede bu klasöre eklendi.
+- **`vercel.json`**, **`api/config.js`**, **`package.json`** (projede mevcut)
 
-**Vercel’de:** Repoyu bağladıktan sonra **Settings → General → Root Directory** alanına şunu yaz:
+**Vercel’de:** **Settings → General → Root Directory** alanına şunu yaz:
 
 ```
-My project (1)/Builds/WEBGL
+webgl-deploy
 ```
 
-Böylece Vercel deploy’u doğrudan bu klasörden alır; her push’ta (bu klasör güncellenmişse) otomatik deploy olur.
+Böylece build hatası (invalid function name / space) olmaz; her push’ta otomatik deploy çalışır.
 
 ---
 
@@ -49,8 +51,8 @@ Vercel Dashboard → Proje → **Settings → Environment Variables** bölümün
 
 ## 4. Deploy
 
-- **Git:** Repoyu Vercel’e bağla. **Root Directory:** `My project (1)/Builds/WEBGL` yap. Her push’ta bu klasör güncellenmişse otomatik deploy olur.
-- **CLI:** `My project (1)/Builds/WEBGL` klasörüne gidip `vercel` çalıştır.
+- **Git:** Repoyu Vercel’e bağla. **Root Directory:** `webgl-deploy` yap. Her push’ta otomatik deploy olur.
+- **CLI:** `webgl-deploy` klasörüne gidip `vercel` çalıştır.
 
 İlk açılışta oyun `/api/config` ile bu env değerlerini alır; cüzdan ve bakiye buna göre çalışır.
 
