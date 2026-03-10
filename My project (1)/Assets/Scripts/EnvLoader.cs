@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -57,5 +58,16 @@ public static class EnvLoader
     {
         string v = Environment.GetEnvironmentVariable(key);
         return string.IsNullOrEmpty(v) ? fallback : v;
+    }
+
+    /// <summary>WebGL: /api/config cevabı gibi key-value çiftlerini ortam değişkenine yazar.</summary>
+    public static void SetFromDictionary(IReadOnlyDictionary<string, string> dict)
+    {
+        if (dict == null) return;
+        foreach (var kv in dict)
+        {
+            if (string.IsNullOrEmpty(kv.Key)) continue;
+            try { Environment.SetEnvironmentVariable(kv.Key, kv.Value ?? "", EnvironmentVariableTarget.Process); } catch { }
+        }
     }
 }

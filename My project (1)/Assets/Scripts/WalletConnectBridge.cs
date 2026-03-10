@@ -61,7 +61,7 @@ public static class WalletConnectBridge
                 );
 
                 var config = new AppKitConfig(
-                    projectId: "98c021d7980856feb52faa0f9c1d314c",
+                    projectId: EnvLoader.Get("REOWN_PROJECT_ID", "98c021d7980856feb52faa0f9c1d314c"),
                     metadata: metadata
                 );
 

@@ -140,13 +140,18 @@ internal static class GameStateBootstrap
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     static void EnsureGameState()
     {
-        // .env varsa ortam değişkenlerini yükle (DEV_WALLET_ADDRESS vb.)
-        EnvLoader.LoadFromFile();
-
         if (GameState.Instance != null) return;
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+        // WebGL (Vercel): önce /api/config ile env yükle, sonra GameState EnvBootstrap içinde oluşturulur
+        var go = new GameObject("EnvBootstrap");
+        go.AddComponent<EnvBootstrap>();
+#else
+        EnvLoader.LoadFromFile();
         var go = new GameObject("GameState");
         go.AddComponent<GameState>();
         go.AddComponent<MarketUI>();
         go.AddComponent<AvalancheWallet>();
+#endif
     }
 }
