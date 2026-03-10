@@ -2,8 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Basit market: Gun ve Spear, Satın Al, M ile aç/kapa.
-/// Canvas GameState altında oluşturulur; sahne değişse bile referans kaybolmaz.
+/// Simple market: Gun and Spear, Buy, toggle with M.
+/// Canvas is parented under GameState so it survives scene changes.
 /// </summary>
 public class MarketUI : MonoBehaviour
 {
@@ -198,7 +198,7 @@ public class MarketUI : MonoBehaviour
         string id = itemId;
         b.onClick.AddListener(() => Buy(id, p));
 
-        Text btnTxt = CreateText(btn.transform, "Satın Al", 12, new Color(0, 1f, 0.3f), 0, 0);
+        Text btnTxt = CreateText(btn.transform, "Buy", 12, new Color(0, 1f, 0.3f), 0, 0);
         btnTxt.alignment = TextAnchor.MiddleCenter;
         RectTransform btnTxtR = btnTxt.GetComponent<RectTransform>();
         btnTxtR.anchorMin = Vector2.zero;

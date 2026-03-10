@@ -968,6 +968,8 @@ GameObject:
   m_Component:
   - component: {fileID: 378617626}
   - component: {fileID: 378617625}
+  - component: {fileID: 378617628}
+  - component: {fileID: 378617627}
   m_Layer: 0
   m_Name: Collider (1)
   m_TagString: Untagged
@@ -1005,7 +1007,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -1030,12 +1032,38 @@ Transform:
   m_GameObject: {fileID: 378617624}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 21.93, y: -4.86836, z: 0}
+  m_LocalPosition: {x: 21.87, y: -4.86836, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &378617627
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 378617624}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bd128ad67294b84d84edfdec1023d56, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: "Assembly-CSharp::\u0131\u015F\u0131nlama_ogretici_to_cpugiris"
+  playerTag: Player
+--- !u!114 &378617628
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 378617624}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ab12f3df2d9dd440913959e53ce8ca6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SceneTransitionTrigger
+  targetSceneName: CpuBazaar
 --- !u!1001 &416498193
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1517,6 +1545,10 @@ PrefabInstance:
     - target: {fileID: 8408219607366741943, guid: 5cd9afd88abf0024cbcf505e7d1c7c94, type: 3}
       propertyPath: m_Name
       value: FemaleTopwdonw
+      objectReference: {fileID: 0}
+    - target: {fileID: 8408219607366741943, guid: 5cd9afd88abf0024cbcf505e7d1c7c94, type: 3}
+      propertyPath: m_TagString
+      value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 9201314410855739222, guid: 5cd9afd88abf0024cbcf505e7d1c7c94, type: 3}
       propertyPath: rb

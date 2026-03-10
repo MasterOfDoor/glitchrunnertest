@@ -28,6 +28,20 @@ public class AvalancheWallet : MonoBehaviour
         config = Resources.Load<AvalancheConfig>("AvalancheConfig");
         if (config == null)
             config = ScriptableObject.CreateInstance<AvalancheConfig>();
+
+        // Ortam değişkenleri ile config'i override etme imkânı (deploy ortamı için).
+        // AVALANCHE_RPC_URL, AVALANCHE_TOKEN_ADDRESS, AVALANCHE_TOKEN_DECIMALS, AVALANCHE_DISTRIBUTOR_ADDRESS
+        string rpcOverride = EnvLoader.Get("AVALANCHE_RPC_URL");
+        if (!string.IsNullOrEmpty(rpcOverride)) config.rpcUrl = rpcOverride;
+
+        string tokenAddr = EnvLoader.Get("AVALANCHE_TOKEN_ADDRESS");
+        if (!string.IsNullOrEmpty(tokenAddr)) config.tokenContractAddress = tokenAddr;
+
+        string tokenDec = EnvLoader.Get("AVALANCHE_TOKEN_DECIMALS");
+        if (!string.IsNullOrEmpty(tokenDec) && int.TryParse(tokenDec, out var dec)) config.tokenDecimals = dec;
+
+        string distAddr = EnvLoader.Get("AVALANCHE_DISTRIBUTOR_ADDRESS");
+        if (!string.IsNullOrEmpty(distAddr)) config.distributorAddress = distAddr;
     }
 
     void Start()

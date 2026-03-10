@@ -21,9 +21,9 @@ public class LadderClimb : MonoBehaviour
     private float _bottomY;
 
     // Aktif oyuncu referansı
-    private Rigidbody2D       _playerRb;
-    private PlayerController  _playerCtrl;
-    private bool              _climbing;
+    private Rigidbody2D      _playerRb;
+    private PlayerController _playerCtrl;
+    private bool             _climbing;
 
     void Awake()
     {

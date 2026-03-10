@@ -6,15 +6,24 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/cpuorta.unity
-    guid: 8c9cfa26abfee488c85f1582747f6a02
+    path: Assets/Scenes/LoginScene.unity
+    guid: ceb9dfb8b7c9fdd4e9a0a8c75539eac7
   - enabled: 1
-    path: Assets/Scenes/Cpu giriş.unity
+    path: Assets/Scenes/OgreticiSahne.unity
+    guid: 209c764b838faa044b3929a5c685b19e
+  - enabled: 1
+    path: "Assets/Scenes/Cpu giri\u015F.unity"
     guid: abb515dc8e151564e99818a68ba9c90e
   - enabled: 1
     path: Assets/Scenes/CpuBazaar.unity
     guid: d0ac45d558f399d4a9fed31314f68b2e
   - enabled: 1
+    path: Assets/Scenes/Ram R_.unity
+    guid: 8d6c1bca09997e84bbaf718441a4368c
+  - enabled: 0
+    path: Assets/Scenes/cpuorta.unity
+    guid: 8c9cfa26abfee488c85f1582747f6a02
+  - enabled: 0
     path: Assets/Scenes/MotherBoard.unity
     guid: ef717c17deb79a345a2630d3d276f0c0
   m_configObjects:

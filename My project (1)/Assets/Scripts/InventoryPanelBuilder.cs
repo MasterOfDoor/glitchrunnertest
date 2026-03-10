@@ -96,7 +96,7 @@ public static class InventoryPanelBuilder
         titleRect.sizeDelta = new Vector2(-Padding * 2, TitleHeight);
         titleRect.anchoredPosition = new Vector2(0, -Padding);
         Text titleText = titleObj.AddComponent<Text>();
-        titleText.text = "ENVANTER";
+        titleText.text = "INVENTORY";
         titleText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         titleText.fontSize = titleSize;
         titleText.color = titleCol;

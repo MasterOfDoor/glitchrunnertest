@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Reown.AppKit.Unity;
 
 /// <summary>
 /// Cüzdan bağlantısı: .env'deki DEV_WALLET_ADDRESS (test) veya ileride Reown AppKit.
@@ -27,9 +28,79 @@ public static class WalletConnectBridge
         onError?.Invoke("Cüzdan bağlanamadı. .env dosyasına DEV_WALLET_ADDRESS=0xAdresiniz ekleyin veya Reown AppKit kurun.");
     }
 
-    /// <summary>Reown AppKit paketi eklendiğinde burada AppKit.InitializeAsync + OpenModal + AccountConnected ile onAddress(addr) çağırın; true dönün.</summary>
+    /// <summary>
+    /// Real wallet connect via Reown AppKit.
+    /// If AppKit prefab is present, we initialize it (once), open the modal,
+    /// and wait for AccountConnected; on success we call onAddress(address) and return true.
+    /// If AppKit is not available we return false so .env fallback is used.
+    /// </summary>
     static bool TryConnectReown(Action<string> onAddress, Action<string> onError)
     {
-        return false;
+        // AppKit prefab'ı sahnede yoksa Reown kullanma
+        if (AppKit.Instance == null)
+            return false;
+
+        ConnectWithReownAsync(onAddress, onError);
+        return true;
+    }
+
+    /// <summary>
+    /// Async connection flow using Reown AppKit.
+    /// </summary>
+    static async void ConnectWithReownAsync(Action<string> onAddress, Action<string> onError)
+    {
+        try
+        {
+            if (!AppKit.IsInitialized)
+            {
+                var metadata = new Metadata(
+                    name: "GlitchRunner",
+                    description: "On-chain puzzle platformer",
+                    url: "https://glitchrunner.example.com",
+                    iconUrl: "https://glitchrunner.example.com/logo.png"
+                );
+
+                var config = new AppKitConfig(
+                    projectId: "98c021d7980856feb52faa0f9c1d314c",
+                    metadata: metadata
+                );
+
+                await AppKit.InitializeAsync(config);
+            }
+
+            // Eğer zaten bağlı bir hesap varsa, doğrudan onu kullan
+            if (AppKit.IsAccountConnected)
+            {
+                var account = AppKit.Account;
+                if (account != null && !string.IsNullOrEmpty(account.Address))
+                {
+                    onAddress?.Invoke(account.Address);
+                    return;
+                }
+
+                onError?.Invoke("Wallet connected but no account address found.");
+                return;
+            }
+
+            // Yeni bağlantı: AccountConnected event'ini bir kez dinle, ardından modal aç.
+            void Handler(object _, Connector.AccountConnectedEventArgs e)
+            {
+                AppKit.AccountConnected -= Handler;
+
+                var account = AppKit.Account;
+                if (account != null && !string.IsNullOrEmpty(account.Address))
+                    onAddress?.Invoke(account.Address);
+                else
+                    onError?.Invoke("Wallet connected but address is empty.");
+            }
+
+            AppKit.AccountConnected += Handler;
+            AppKit.OpenModal();
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError("[WalletConnectBridge] Reown connect failed: " + ex.Message);
+            onError?.Invoke(ex.Message);
+        }
     }
 }

@@ -140,6 +140,9 @@ internal static class GameStateBootstrap
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     static void EnsureGameState()
     {
+        // .env varsa ortam değişkenlerini yükle (DEV_WALLET_ADDRESS vb.)
+        EnvLoader.LoadFromFile();
+
         if (GameState.Instance != null) return;
         var go = new GameObject("GameState");
         go.AddComponent<GameState>();

@@ -3,8 +3,8 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Giriş ekranı: Cüzdanla Bağlan + Sosyal medya placeholder; giriş sonrası GameState + sahne geçişi.
-/// Cüzdan oluşturma için link (placeholder).
+/// Login screen: Connect Wallet + optional social login; after login sets GameState + scene transition.
+/// Also shows a link for creating a new wallet.
 /// </summary>
 public class LoginUI : MonoBehaviour
 {
@@ -15,10 +15,10 @@ public class LoginUI : MonoBehaviour
     const int RefWidth = 640;
     const int RefHeight = 360;
 
-    [Tooltip("Giriş sonrası yüklenecek sahne adı.")]
+    [Tooltip("Scene name to load after successful login.")]
     public string sceneAfterLogin = "Cpu giriş";
 
-    [Tooltip("Cüzdan oluştur linki (placeholder).")]
+    [Tooltip("External link to create / install a wallet (MetaMask, etc.).")]
     public string createWalletUrl = "https://metamask.io/download/";
 
     GameObject canvasObj;
@@ -72,21 +72,21 @@ public class LoginUI : MonoBehaviour
         titleRect.anchoredPosition = new Vector2(0, -20);
         titleRect.sizeDelta = new Vector2(280, 36);
         var titleText = titleObj.AddComponent<Text>();
-        titleText.text = "GİRİŞ";
+        titleText.text = "LOGIN";
         titleText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         titleText.fontSize = 24;
         titleText.color = MatrixGreen;
         titleText.alignment = TextAnchor.MiddleCenter;
 
-        // Cüzdanla Bağlan
-        var walletBtn = CreateButton("Cüzdanla Bağlan", -20, () => OnWalletConnect());
+        // Connect Wallet
+        var walletBtn = CreateButton("Connect Wallet", -20, () => OnWalletConnect());
         walletBtn.transform.SetParent(panel.transform, false);
 
-        // Sosyal medya ile giriş (placeholder)
-        var socialBtn = CreateButton("Sosyal medya / E-posta ile giriş", -80, () => OnSocialLogin());
+        // Social / email login (optional placeholder)
+        var socialBtn = CreateButton("Continue without wallet", -80, () => OnSocialLogin());
         socialBtn.transform.SetParent(panel.transform, false);
 
-        // Cüzdan oluştur linki
+        // Create wallet link
         var linkObj = new GameObject("CreateWalletLink");
         linkObj.transform.SetParent(panel.transform, false);
         var linkRect = linkObj.AddComponent<RectTransform>();
@@ -107,7 +107,7 @@ public class LoginUI : MonoBehaviour
         linkTextRect.offsetMin = Vector2.zero;
         linkTextRect.offsetMax = Vector2.zero;
         var linkText = linkTextObj.AddComponent<Text>();
-        linkText.text = "Cüzdan oluştur";
+        linkText.text = "Create wallet";
         linkText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         linkText.fontSize = 14;
         linkText.color = MatrixGreenDim;
@@ -155,10 +155,19 @@ public class LoginUI : MonoBehaviour
 
     void OnWalletConnect()
     {
-        // Placeholder: test adresi ile giriş. Gerçek entegrasyonda WalletConnect/MetaMask ile adres alınır.
-        if (GameState.Instance != null)
-            GameState.Instance.SetWalletAddress("0xPlaceholderWalletAddress");
-        GoToNextScene();
+        // Gerçek cüzdan bağlantısı: WalletConnectBridge üzerinden adres al.
+        WalletConnectBridge.ConnectAsync(
+            address =>
+            {
+                if (GameState.Instance != null)
+                    GameState.Instance.SetWalletAddress(address);
+                GoToNextScene();
+            },
+            error =>
+            {
+                Debug.LogWarning("[LoginUI] Cüzdan bağlantısı başarısız: " + error);
+                // İstersen burada panel üzerine bir hata yazısı da gösterebilirsin.
+            });
     }
 
     void OnSocialLogin()

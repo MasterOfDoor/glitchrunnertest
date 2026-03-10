@@ -93,7 +93,7 @@ public class AsılScript : MonoBehaviour
         }
         if (inventoryPanel == null)
         {
-            Debug.LogError("Envanter paneli bulunamadı.");
+            Debug.LogError("Inventory panel could not be found or created.");
             return;
         }
 
