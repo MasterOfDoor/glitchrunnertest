@@ -14,6 +14,9 @@ public class PuzzleManager : MonoBehaviour
     public TMP_Text        timerText;
     public MatrixBitWriter matrixWriter;
 
+    [Header("Font Override (boş bırakılırsa prefab fontu kullanılır)")]
+    public TMP_FontAsset   overrideFont;
+
     [Header("Target Area")]
     public GameObject targetSlotPrefab;
     public Transform  targetArea;
@@ -176,7 +179,7 @@ public class PuzzleManager : MonoBehaviour
             occupied.Add(new Rect(pos, size));
 
             CodeLine code = obj.GetComponent<CodeLine>();
-            code.Setup(line, this);
+            code.Setup(line, this, overrideFont);
             _lines.Add(code);
         }
     }

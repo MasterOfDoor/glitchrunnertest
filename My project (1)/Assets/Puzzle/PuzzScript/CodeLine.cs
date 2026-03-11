@@ -35,13 +35,12 @@ public class CodeLine : MonoBehaviour,
     private Vector3   _dragOffset;
 
     // ─────────────────────────────────────────────────────────────────────
-    public void Setup(string lineText, PuzzleManager manager)
+    public void Setup(string lineText, PuzzleManager manager, TMP_FontAsset fontOverride = null)
     {
         text     = lineText;
         _manager = manager;
         _rect    = GetComponent<RectTransform>();
 
-        // Canvas'ı root'a kadar tırmanarak bul (güvenilir)
         _canvas = GetComponentInParent<Canvas>();
         Transform t = transform;
         while (_canvas == null && t.parent != null)
@@ -50,10 +49,13 @@ public class CodeLine : MonoBehaviour,
             _canvas = t.GetComponent<Canvas>();
         }
 
-        // Görseller
         _bg     = GetComponent<Image>();
         _border = transform.Find("Border")?.GetComponent<Image>();
         _label  = GetComponentInChildren<TMP_Text>();
+
+        // Font override — runtime'da prefab fontunu değiştir
+        if (_label != null && fontOverride != null)
+            _label.font = fontOverride;
 
         if (_bg     != null) _bg.color     = BgNormal;
         if (_border != null) _border.color = BorderIdle;
