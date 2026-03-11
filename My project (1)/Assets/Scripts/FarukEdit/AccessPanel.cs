@@ -10,8 +10,13 @@ public class AccessPanel : MonoBehaviour
     [SerializeField] private TMP_Text label;
 
     [Header("Renkler")]
-    [SerializeField] private Color colorA = new Color(1f, 0.06f, 0.25f);  // #FF0F40
-    [SerializeField] private Color colorB = new Color(0f, 1f,   0.53f);   // #00FF88
+    [SerializeField] private Color colorA = new Color(0f, 1f, 0.22f);   // #00FF38 neon yeşil
+    [SerializeField] private Color colorB = new Color(1f, 0.06f, 0.25f); // #FF0F40 kırmızı
+
+    [Header("Nabız")]
+    [SerializeField] private float pulseSpeed = 3f;   // parlama hızı
+    [SerializeField] private float pulseMin   = 0.3f; // en karanlık nokta
+    [SerializeField] private float pulseMax   = 1f;   // en parlak nokta
 
     [Header("Efekt")]
     [SerializeField] private float glitchDuration = 0.5f;
@@ -19,12 +24,12 @@ public class AccessPanel : MonoBehaviour
 
     static readonly string[] GlitchPool =
     {
-        "ERİŞİM\nREDDEDİLDİ",
-        "3Rİ$İM\nR3DD3D|LD|",
-        "ER|Ş|M\n▓EDD▓D|LD|",
-        "█RİŞ█M\n█EDDEDILDI",
-        "E̷R̷İ̷Ş̷İ̷M̷\nR̷E̷D̷D̷E̷D̷İ̷L̷D̷İ̷",
-        "҉ERİŞİM҉\nREDDEDİLDİ",
+        "// access denied",
+        "// 4cc3ss d3n13d",
+        "// @cc#ss d%n!ed",
+        "// █ccess den█ed",
+        "// ̷a̷c̷c̷e̷s̷s̷ ̷d̷e̷n̷i̷e̷d̷",
+        "// acce$$ derr0r",
     };
 
     bool _done;
@@ -39,17 +44,19 @@ public class AccessPanel : MonoBehaviour
             Debug.LogError("[AccessPanel] TMP_Text bulunamadı! Label alanını Inspector'dan bağla.");
             return;
         }
-        label.text  = " // access\ndenied";
+        label.text  = "// access denied";
         label.color = colorA;
     }
 
-    // sürekli nabız
+    // sürekli parlayıp sönme
     void Update()
     {
         if (_done || label == null) return;
-        _t += Time.deltaTime * 2.5f;
-        float b = 0.55f + 0.45f * Mathf.Sin(_t);
-        label.color = Color.Lerp(colorA * b, colorA, 0.3f);
+        _t += Time.deltaTime * pulseSpeed;
+        float b = Mathf.Lerp(pulseMin, pulseMax, (Mathf.Sin(_t) + 1f) * 0.5f);
+        Color c = colorA;
+        c.r *= b; c.g *= b; c.b *= b; c.a = 1f;
+        label.color = c;
     }
 
     public void Dismiss()
