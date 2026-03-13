@@ -6,12 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/BlockchainMenu.unity
-    guid: f5bf9c0af42c8ce4790da8f6eed18068
-  - enabled: 1
-    path: Assets/Scenes/MainMenu.unity
-    guid: 2ecd262aaf71ff5448fe5aa6035bdc1c
-  - enabled: 0
     path: Assets/Scenes/LoginScene.unity
     guid: ceb9dfb8b7c9fdd4e9a0a8c75539eac7
   - enabled: 1
