@@ -6,8 +6,17 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/BlockchainMenu.unity
+    guid: f5bf9c0af42c8ce4790da8f6eed18068
+  - enabled: 0
     path: Assets/Scenes/LoginScene.unity
     guid: ceb9dfb8b7c9fdd4e9a0a8c75539eac7
+  - enabled: 1
+    path: Assets/Scenes/MainMenu.unity
+    guid: 2ecd262aaf71ff5448fe5aa6035bdc1c
+  - enabled: 1
+    path: "Assets/Scenes/karikat\xFCr.unity"
+    guid: a7145ee6481974228a91f28d7c0fdd99
   - enabled: 1
     path: Assets/Scenes/OgreticiSahne.unity
     guid: 209c764b838faa044b3929a5c685b19e

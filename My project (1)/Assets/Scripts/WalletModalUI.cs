@@ -7,25 +7,26 @@ using TMPro;
 using Reown.AppKit.Unity;
 
 /// <summary>
-/// WalletModalUI.cs
-/// Reown AppKit'in kendi modal'ı yerine kendi distopik UI'ımızı kullanır.
-/// Kullanıcının yüklü wallet'larını listeler, logolar + isimlerle gösterir.
-/// Google giriş butonu en üstte sabit durur.
-/// Konum: Assets/Scripts/WalletModalUI.cs
+/// WalletModalUI.cs — WebGL uyumlu, derleme hataları giderildi
+///
+/// DÜZELTMELER:
+///   - ViewType.SocialLogin yok → AppKit.OpenModal() kullanılıyor
+///   - ConnectorController.Connectors yok → GetAvailableWallets() sadece KnownWallets döndürüyor
+///   - Google WebGL: SocialLogin.Google.Open() → AppKit.OpenModal() ile Reown kendi UI'ında Google sunuyor
 /// </summary>
 public class WalletModalUI : MonoBehaviour
 {
     [Header("Modal Kök")]
-    public CanvasGroup modalGroup;       // Modal'ın tüm CanvasGroup'u
-    public RectTransform modalPanel;     // Ana panel RectTransform
+    public CanvasGroup    modalGroup;
+    public RectTransform  modalPanel;
 
     [Header("Google Butonu")]
-    public Button      googleButton;
+    public Button          googleButton;
     public TextMeshProUGUI googleLabel;
 
     [Header("Wallet Listesi")]
-    public RectTransform  walletListContent;  // ScrollRect > Viewport > Content
-    public GameObject     walletRowPrefab;    // Wallet satır prefab'ı
+    public RectTransform walletListContent;
+    public GameObject    walletRowPrefab;
 
     [Header("Status")]
     public TextMeshProUGUI statusText;
@@ -34,36 +35,31 @@ public class WalletModalUI : MonoBehaviour
     public Button closeButton;
 
     [Header("Sahne Geçişi")]
-    [Tooltip("Bağlantı sonrası gidilecek sahne adı (Build Settings'te olmalı)")]
-    public string targetSceneName = "MainMenu";
-    [Tooltip("Geçiş öncesi FadeCanvas'ın CanvasGroup'u")]
+    public string      targetSceneName = "MainMenu";
     public CanvasGroup fadeGroup;
-    [Tooltip("Geçiş süresi (saniye)")]
-    public float fadeDuration = 1.0f;
+    public float       fadeDuration    = 1.0f;
 
-    // Renk sabitleri — parlak ve net
-    private static readonly Color CIdle  = new Color(0f, 1f, 0.35f, 1.00f);
-    private static readonly Color CWarn  = new Color(1f, 0.90f, 0f, 1.00f);
-    private static readonly Color CGreen = new Color(0f, 1f, 0.40f, 1.00f);
-    private static readonly Color CDim   = new Color(0f, 0.80f, 0.25f, 0.90f);
+    private static readonly Color CIdle  = new Color(0f, 1f,    0.35f, 1.00f);
+    private static readonly Color CWarn  = new Color(1f, 0.90f, 0f,    1.00f);
+    private static readonly Color CGreen = new Color(0f, 1f,    0.40f, 1.00f);
+    private static readonly Color CError = new Color(1f, 0.10f, 0.05f, 1.00f);
 
-    // Desteklenen wallet listesi — Reown SDK'nın algıladığı isimlerle eşleşmeli
+    // WalletConnect her zaman başta — WebGL'de QR ile çalışır
     private static readonly WalletInfo[] KnownWallets =
     {
-        new WalletInfo("MetaMask",        "metamask"),
         new WalletInfo("WalletConnect",   "walletconnect"),
+        new WalletInfo("MetaMask",        "metamask"),
         new WalletInfo("Coinbase Wallet", "coinbase"),
         new WalletInfo("Trust Wallet",    "trust"),
         new WalletInfo("Phantom",         "phantom"),
         new WalletInfo("Rainbow",         "rainbow"),
-        new WalletInfo("Ledger",          "ledger"),
-        new WalletInfo("Trezor",          "trezor"),
     };
 
-    private bool _open   = false;
-    private bool _busy   = false;
+    private bool _open = false;
+    private bool _busy = false;
     private readonly List<GameObject> _rows = new List<GameObject>();
 
+    // ── Lifecycle ─────────────────────────────────────────────────────────
     void Awake()
     {
         if (modalGroup)
@@ -72,19 +68,41 @@ public class WalletModalUI : MonoBehaviour
             modalGroup.interactable   = false;
             modalGroup.blocksRaycasts = false;
         }
-
-        if (closeButton) closeButton.onClick.AddListener(CloseModal);
+        if (closeButton)  closeButton.onClick.AddListener(CloseModal);
         if (googleButton) googleButton.onClick.AddListener(OnGoogleClick);
-        if (statusText) statusText.text = "";
+        if (statusText)   statusText.text = "";
     }
 
     void Start()
     {
-        if (AppKit.IsInitialized)
+        TrySubscribeAppKit();
+    }
+
+    void TrySubscribeAppKit()
+    {
+        try
         {
-            AppKit.AccountConnected    += OnReownConnected;
-            AppKit.AccountDisconnected += OnReownDisconnected;
+            if (AppKit.IsInitialized)
+            {
+                AppKit.AccountConnected    += OnReownConnected;
+                AppKit.AccountDisconnected += OnReownDisconnected;
+            }
+            else
+            {
+                StartCoroutine(RetrySubscribe());
+            }
         }
+        catch (System.Exception ex)
+        {
+            Debug.LogWarning($"[WalletModal] AppKit subscribe: {ex.Message}");
+            StartCoroutine(RetrySubscribe());
+        }
+    }
+
+    IEnumerator RetrySubscribe()
+    {
+        yield return new WaitForSeconds(1.5f);
+        TrySubscribeAppKit();
     }
 
     void OnDestroy()
@@ -97,23 +115,19 @@ public class WalletModalUI : MonoBehaviour
                 AppKit.AccountDisconnected -= OnReownDisconnected;
             }
         }
-        catch (System.Exception)
-        {
-            // AppKit zaten kaldırılmış olabilir (örn. Play mode bitince)
-        }
+        catch { }
     }
 
+    // ── Reown Events ─────────────────────────────────────────────────────
     void OnReownConnected(object sender, Connector.AccountConnectedEventArgs e)
     {
         string addr = e != null ? (e.Account.Address ?? "") : "";
         string shortAddr = addr.Length > 10
             ? $"{addr.Substring(0, 6)}...{addr.Substring(addr.Length - 4)}"
             : addr;
-
         SetStatus($"> ACCESS GRANTED // {shortAddr}");
-        SetStatusColor(new Color(0f, 1f, 0.35f, 1f));
+        SetStatusColor(CGreen);
         _busy = false;
-
         StartCoroutine(SuccessAndLoad());
     }
 
@@ -145,16 +159,10 @@ public class WalletModalUI : MonoBehaviour
         if (!string.IsNullOrEmpty(targetSceneName))
             SceneManager.LoadScene(targetSceneName);
         else
-            Debug.LogWarning("[WalletModal] targetSceneName boş! Inspector'dan sahne adını gir.");
+            Debug.LogWarning("[WalletModal] targetSceneName boş!");
     }
 
-    IEnumerator DelayedClose(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        CloseModal();
-    }
-
-    // ── Dışarıdan çağrılır (BootPanelController'dan) ─────────────────────
+    // ── Modal Aç / Kapat ─────────────────────────────────────────────────
     public void OpenModal()
     {
         if (_open) return;
@@ -170,55 +178,59 @@ public class WalletModalUI : MonoBehaviour
         StartCoroutine(FadeOut());
     }
 
-    // ── Wallet listesini oluştur ──────────────────────────────────────────
+    // ── Wallet Listesi ───────────────────────────────────────────────────
     void BuildWalletList()
     {
-        // Eski satırları temizle
         foreach (var r in _rows) Destroy(r);
         _rows.Clear();
 
-        // Reown'dan mevcut wallet'ları al
-        // NOT: Bu kısım Cursor tarafından Reown SDK'ya göre doldurulacak
-        // Şimdilik KnownWallets listesini filtrele (SDK entegrasyonu sonrası güncellenir)
-        var available = GetAvailableWallets();
+        var wallets = GetAvailableWallets();
+        SetStatus($"> {wallets.Count} WALLET PROVIDER DETECTED");
 
-        SetStatus($"> {available.Count} WALLET PROVIDER DETECTED");
-
-        foreach (var w in available)
+        foreach (var w in wallets)
         {
+            if (walletRowPrefab == null || walletListContent == null) break;
             var row = Instantiate(walletRowPrefab, walletListContent);
             _rows.Add(row);
 
             var label = row.GetComponentInChildren<TextMeshProUGUI>();
             if (label) { label.text = w.DisplayName.ToUpper(); label.color = CIdle; }
 
-            // Logo sprite — Resources/WalletLogos/{w.Id} adında yükle
             var img = row.transform.Find("Logo")?.GetComponent<Image>();
             if (img)
             {
                 var sprite = Resources.Load<Sprite>($"WalletLogos/{w.Id}");
                 if (sprite) img.sprite = sprite;
-                else img.color = new Color(0f, 1f, 0.3f, 0.3f); // bulunamazsa yeşil placeholder
+                else        img.color  = new Color(0f, 1f, 0.3f, 0.3f);
             }
 
-            // Tıklama — walletId'yi capture et
-            string id = w.Id;
+            string capturedId   = w.Id;
+            string capturedName = w.DisplayName;
             var btn = row.GetComponent<Button>();
-            if (btn) btn.onClick.AddListener(() => OnWalletClick(id, w.DisplayName));
-
-            // Hover efekti
+            if (btn) btn.onClick.AddListener(() => OnWalletClick(capturedId, capturedName));
             AddHoverEffect(row);
         }
 
-        // İçerik yüksekliğini ayarla (scroll için)
+        EnsureLayout();
+    }
+
+    List<WalletInfo> GetAvailableWallets()
+    {
+        // ConnectorController.Connectors bu SDK sürümünde yok.
+        // KnownWallets listesi kullanılıyor — WebGL'de her wallet AppKit.OpenModal() ile açılır.
+        return new List<WalletInfo>(KnownWallets);
+    }
+
+    void EnsureLayout()
+    {
+        if (!walletListContent) return;
         var layout = walletListContent.GetComponent<VerticalLayoutGroup>();
         if (!layout)
         {
             layout = walletListContent.gameObject.AddComponent<VerticalLayoutGroup>();
-            layout.spacing          = 4f;
+            layout.spacing               = 4f;
             layout.childForceExpandWidth  = true;
             layout.childForceExpandHeight = false;
-            layout.padding = new RectOffset(0, 0, 0, 0);
         }
         var fitter = walletListContent.GetComponent<ContentSizeFitter>();
         if (!fitter)
@@ -228,83 +240,108 @@ public class WalletModalUI : MonoBehaviour
         }
     }
 
-    List<WalletInfo> GetAvailableWallets()
-    {
-        // Bu SDK sürümünde ConnectorController.AvailableWallets yok; bilinen liste kullanılıyor
-        return new List<WalletInfo>(KnownWallets);
-    }
-
-    // ── Google ile giriş ─────────────────────────────────────────────────
+    // ── Google Butonu ─────────────────────────────────────────────────────
+    // WebGL'de SocialLogin.Google.Open() browser popup bloğuna takılır.
+    // Çözüm: AppKit.OpenModal() açılır, Reown kendi UI'ında Google seçeneğini
+    // otomatik gösterir. Kullanıcı oradan Google'ı seçer.
     void OnGoogleClick()
     {
         if (_busy) return;
-        StartCoroutine(ConnectSequence("google", "GOOGLE"));
+        StartCoroutine(ConnectGoogle());
     }
 
-    // ── Wallet tıklama ────────────────────────────────────────────────────
+    IEnumerator ConnectGoogle()
+    {
+        _busy = true;
+        SetStatus("> OPENING GOOGLE AUTH...");
+        SetStatusColor(CWarn);
+        yield return new WaitForSeconds(0.2f);
+
+        if (!AppKit.IsInitialized)
+        {
+            SetStatus("> SYSTEM NOT READY — TRY AGAIN IN A MOMENT");
+            SetStatusColor(CError);
+            yield return new WaitForSeconds(2f);
+            SetStatus("");
+            _busy = false;
+            yield break;
+        }
+
+        bool err = false;
+        try
+        {
+            // WebGL'de en güvenli yol: normal modal açılır.
+            // Reown'un WebGL UI'ında Google seçeneği otomatik çıkar.
+            AppKit.OpenModal();
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[WalletModal] Google modal hatası: {ex.Message}");
+            err = true;
+        }
+
+        if (err)
+        {
+            SetStatus("> ERROR: GOOGLE AUTH UNAVAILABLE");
+            SetStatusColor(CError);
+            yield return new WaitForSeconds(2f);
+            SetStatus("");
+            _busy = false;
+        }
+        // Başarı → OnReownConnected event'i
+    }
+
+    // ── Wallet Tıklama ────────────────────────────────────────────────────
     void OnWalletClick(string walletId, string displayName)
     {
         if (_busy) return;
-        StartCoroutine(ConnectSequence(walletId, displayName.ToUpper()));
+        StartCoroutine(ConnectWallet(walletId, displayName));
     }
 
-    IEnumerator ConnectSequence(string walletId, string displayName)
+    IEnumerator ConnectWallet(string walletId, string displayName)
     {
         _busy = true;
-        SetStatus($"> CONNECTING TO {displayName}...");
+        SetStatus($"> CONNECTING TO {displayName.ToUpper()}...");
         SetStatusColor(CWarn);
         yield return new WaitForSeconds(0.3f);
 
         if (!AppKit.IsInitialized)
         {
-            SetStatus("> APP NOT READY — Start from main menu to enable wallet.");
-            SetStatusColor(new Color(1f, 0.5f, 0f, 0.9f));
+            SetStatus("> SYSTEM NOT READY — TRY AGAIN IN A MOMENT");
+            SetStatusColor(CError);
+            yield return new WaitForSeconds(2f);
+            SetStatus("");
             _busy = false;
             yield break;
         }
 
-        bool connectError = false;
-        if (walletId == "google")
+        SetStatus($"> AWAITING {displayName.ToUpper()} SIGNATURE...");
+
+        bool err = false;
+        try
         {
-            SetStatus("> OPENING GOOGLE AUTH...");
-            yield return new WaitForSeconds(0.2f);
-            try { SocialLogin.Google.Open(); }
-            catch (System.Exception e)
-            {
-                Debug.LogError($"[WalletModal] Google connect hatası: {e.Message}");
-                connectError = true;
-            }
+            // WebGL'de tüm wallet'lar için AppKit.OpenModal() kullanılır.
+            // Reown kendi QR/deep-link akışını yönetir.
+            AppKit.OpenModal();
         }
-        else
+        catch (System.Exception ex)
         {
-            SetStatus($"> AWAITING {displayName} SIGNATURE...");
-            yield return new WaitForSeconds(0.2f);
-            try { AppKit.OpenModal(); }
-            catch (System.Exception e)
-            {
-                Debug.LogError($"[WalletModal] Wallet connect hatası: {e.Message}");
-                connectError = true;
-            }
+            Debug.LogError($"[WalletModal] Wallet connect hatası: {ex.Message}");
+            err = true;
         }
 
-        if (connectError)
+        if (err)
         {
-            yield return StartCoroutine(ShowConnectError());
-            yield break;
+            SetStatus("> ERROR: CONNECTION FAILED");
+            SetStatusColor(CError);
+            yield return new WaitForSeconds(2f);
+            SetStatus("");
+            _busy = false;
         }
-        // Başarı OnReownConnected event'i ile gelir
+        // Başarı → OnReownConnected event'i
     }
 
-    IEnumerator ShowConnectError()
-    {
-        SetStatus("> ERROR: CONNECTION FAILED");
-        SetStatusColor(new Color(1f, 0.1f, 0.05f, 0.9f));
-        yield return new WaitForSeconds(2f);
-        SetStatus("");
-        _busy = false;
-    }
-
-    // ── Fade animasyonları ────────────────────────────────────────────────
+    // ── Fade ─────────────────────────────────────────────────────────────
     IEnumerator FadeIn()
     {
         modalGroup.interactable   = true;
@@ -331,52 +368,44 @@ public class WalletModalUI : MonoBehaviour
         }
     }
 
-    // ── Hover efekti ─────────────────────────────────────────────────────
+    // ── Hover ─────────────────────────────────────────────────────────────
     void AddHoverEffect(GameObject row)
     {
         var trigger = row.GetComponent<UnityEngine.EventSystems.EventTrigger>();
         if (!trigger) trigger = row.AddComponent<UnityEngine.EventSystems.EventTrigger>();
 
-        var enterEntry = new UnityEngine.EventSystems.EventTrigger.Entry
+        var enter = new UnityEngine.EventSystems.EventTrigger.Entry
             { eventID = UnityEngine.EventSystems.EventTriggerType.PointerEnter };
-        enterEntry.callback.AddListener(_ =>
+        enter.callback.AddListener(_ =>
         {
             var img = row.GetComponent<Image>();
-            if (img) img.color = new Color(0f, 1f, 0.3f, 0.07f);
-            var outline = row.GetComponent<Outline>();
-            if (outline) outline.effectColor = new Color(0f, 1f, 0.3f, 0.6f);
+            var ol  = row.GetComponent<Outline>();
+            if (img) img.color      = new Color(0f, 1f, 0.3f, 0.07f);
+            if (ol)  ol.effectColor = new Color(0f, 1f, 0.3f, 0.6f);
         });
 
-        var exitEntry = new UnityEngine.EventSystems.EventTrigger.Entry
+        var exit = new UnityEngine.EventSystems.EventTrigger.Entry
             { eventID = UnityEngine.EventSystems.EventTriggerType.PointerExit };
-        exitEntry.callback.AddListener(_ =>
+        exit.callback.AddListener(_ =>
         {
             var img = row.GetComponent<Image>();
-            if (img) img.color = new Color(0f, 0f, 0f, 0f);
-            var outline = row.GetComponent<Outline>();
-            if (outline) outline.effectColor = new Color(0f, 1f, 0.3f, 0.25f);
+            var ol  = row.GetComponent<Outline>();
+            if (img) img.color      = new Color(0f, 0f, 0f, 0f);
+            if (ol)  ol.effectColor = new Color(0f, 1f, 0.3f, 0.25f);
         });
 
-        trigger.triggers.Add(enterEntry);
-        trigger.triggers.Add(exitEntry);
+        trigger.triggers.Add(enter);
+        trigger.triggers.Add(exit);
     }
 
-    void SetStatus(string msg)      { if (statusText) statusText.text  = msg; }
-    void SetStatusColor(Color col)  { if (statusText) statusText.color = col; }
+    void SetStatus(string msg)     { if (statusText) statusText.text  = msg; }
+    void SetStatusColor(Color col) { if (statusText) statusText.color = col; }
 
-    static TMP_FontAsset LoadMonoFont()
-    {
-        var font = Resources.Load<TMP_FontAsset>("Fonts/ShareTechMono-Regular SDF");
-        if (font != null) return font;
-        return TMP_Settings.defaultFontAsset;
-    }
-
-    // ── Wallet bilgi yapısı ───────────────────────────────────────────────
     [System.Serializable]
     public class WalletInfo
     {
         public string DisplayName;
         public string Id;
-        public WalletInfo(string displayName, string id) { DisplayName = displayName; Id = id; }
+        public WalletInfo(string d, string i) { DisplayName = d; Id = i; }
     }
 }

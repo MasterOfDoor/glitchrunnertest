@@ -29,8 +29,8 @@ public class GlitchrunnerIntro : MonoBehaviour
 
     void Update()
     {
-        // Mouse sol tık, Space veya Enter tuşuyla ilerle
-        if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return)) && !isTransitioning)
+        // Mouse sol veya sağ tık, Space veya Enter tuşuyla ilerle
+        if ((Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return)) && !isTransitioning)
         {
             AdvanceIntro();
         }
