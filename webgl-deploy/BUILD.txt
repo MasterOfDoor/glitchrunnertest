@@ -1,0 +1,8 @@
+Vercel'de çift sıkıştırma hatası olmaması için Build/ klasöründe SIKIŞTIRMASIZ dosyalar olmalı.
+
+1. Unity: Edit → Project Settings → Player → WebGL → Publishing Settings → Compression Format = Disabled
+2. File → Build Settings → WebGL → Build → çıktıyı My project (1)/Builds/WEBGL'e al
+3. Oradaki Build/ içeriğini (WEBGL.data, WEBGL.framework.js, WEBGL.wasm, WEBGL.loader.js) bu webgl-deploy/Build/ ile değiştir
+4. Commit + push
+
+Bu klasörde .br dosyası KULLANMA; sadece .data, .framework.js, .wasm.
