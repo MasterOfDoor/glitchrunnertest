@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 1678441004945361304}
   - component: {fileID: 2243660350795272564}
   m_Layer: 3
-  m_Name: MainAdventurer
+  m_Name: "MainAdventurer \u015F\xFCpheli"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -40,7 +40,7 @@ public class MainMenuController : MonoBehaviour
     [SerializeField] float      tvDuration = 0.45f;
 
     [Header("Sahne")]
-    [SerializeField] string     gameSceneName = "Ram_R_";
+    [SerializeField] string     gameSceneName = "OgreticiSahne";
 
     // ── Renkler ──────────────────────────────────────────────
     static readonly Color ColCyan    = new Color(0f, 0.898f, 1f,    1f);

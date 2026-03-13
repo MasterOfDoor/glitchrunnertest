@@ -395,6 +395,79 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1082724388}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &163095482
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1262393264283408198, guid: 02f4719a68e88f44e9107f3ff19f52f8, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.40901303
+      objectReference: {fileID: 0}
+    - target: {fileID: 1262393264283408198, guid: 02f4719a68e88f44e9107f3ff19f52f8, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -4.542732
+      objectReference: {fileID: 0}
+    - target: {fileID: 1262393264283408198, guid: 02f4719a68e88f44e9107f3ff19f52f8, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1262393264283408198, guid: 02f4719a68e88f44e9107f3ff19f52f8, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1262393264283408198, guid: 02f4719a68e88f44e9107f3ff19f52f8, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1262393264283408198, guid: 02f4719a68e88f44e9107f3ff19f52f8, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1262393264283408198, guid: 02f4719a68e88f44e9107f3ff19f52f8, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1262393264283408198, guid: 02f4719a68e88f44e9107f3ff19f52f8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1262393264283408198, guid: 02f4719a68e88f44e9107f3ff19f52f8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1262393264283408198, guid: 02f4719a68e88f44e9107f3ff19f52f8, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6839543150225339990, guid: 02f4719a68e88f44e9107f3ff19f52f8, type: 3}
+      propertyPath: runSpeed
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6839543150225339990, guid: 02f4719a68e88f44e9107f3ff19f52f8, type: 3}
+      propertyPath: dashForce
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 6839543150225339990, guid: 02f4719a68e88f44e9107f3ff19f52f8, type: 3}
+      propertyPath: walkSpeed
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6839543150225339990, guid: 02f4719a68e88f44e9107f3ff19f52f8, type: 3}
+      propertyPath: vfxAnimator
+      value: 
+      objectReference: {fileID: 1121581861}
+    - target: {fileID: 7656526014196874941, guid: 02f4719a68e88f44e9107f3ff19f52f8, type: 3}
+      propertyPath: m_Name
+      value: ASILKARAKTER
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 02f4719a68e88f44e9107f3ff19f52f8, type: 3}
 --- !u!1001 &190930861
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -962,7 +1035,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MarketTrigger
   openKey: 109
   openWithoutRange: 0
-  player: {fileID: 1917236967}
+  player: {fileID: 0}
   interactDistance: 2
 --- !u!114 &328101326
 MonoBehaviour:
@@ -1005,7 +1078,7 @@ MonoBehaviour:
   - I got some shit
   - shit to sell
   - Dont buy from him
-  player: {fileID: 1917236967}
+  player: {fileID: 0}
   fontAsset: {fileID: 11400000, guid: 81db8b07940d89a42a6d1f2e4922420c, type: 2}
   labelHeightOffset: 1.8
   labelScale: 0.01
@@ -1410,91 +1483,6 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 1482634395}
   m_SourcePrefab: {fileID: 100100000, guid: 274ea396f7c304841805ed40e26c44c0, type: 3}
---- !u!1001 &484557692
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 1678441004945361304, guid: e3ed70573beef2f408c62788bfae251b, type: 3}
-      propertyPath: runSpeed
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 1678441004945361304, guid: e3ed70573beef2f408c62788bfae251b, type: 3}
-      propertyPath: dashForce
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 1678441004945361304, guid: e3ed70573beef2f408c62788bfae251b, type: 3}
-      propertyPath: walkSpeed
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 1678441004945361304, guid: e3ed70573beef2f408c62788bfae251b, type: 3}
-      propertyPath: inventoryPanel
-      value: 
-      objectReference: {fileID: 228243669}
-    - target: {fileID: 2243660350795272564, guid: e3ed70573beef2f408c62788bfae251b, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2243660350795272564, guid: e3ed70573beef2f408c62788bfae251b, type: 3}
-      propertyPath: inventoryPanel
-      value: 
-      objectReference: {fileID: 700768970}
-    - target: {fileID: 2585212053847867763, guid: e3ed70573beef2f408c62788bfae251b, type: 3}
-      propertyPath: m_Name
-      value: MainAdventurer
-      objectReference: {fileID: 0}
-    - target: {fileID: 2585212053847867763, guid: e3ed70573beef2f408c62788bfae251b, type: 3}
-      propertyPath: m_TagString
-      value: Player
-      objectReference: {fileID: 0}
-    - target: {fileID: 6351516445639288968, guid: e3ed70573beef2f408c62788bfae251b, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -0.01
-      objectReference: {fileID: 0}
-    - target: {fileID: 6351516445639288968, guid: e3ed70573beef2f408c62788bfae251b, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -6.61
-      objectReference: {fileID: 0}
-    - target: {fileID: 6351516445639288968, guid: e3ed70573beef2f408c62788bfae251b, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6351516445639288968, guid: e3ed70573beef2f408c62788bfae251b, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6351516445639288968, guid: e3ed70573beef2f408c62788bfae251b, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6351516445639288968, guid: e3ed70573beef2f408c62788bfae251b, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6351516445639288968, guid: e3ed70573beef2f408c62788bfae251b, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6351516445639288968, guid: e3ed70573beef2f408c62788bfae251b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6351516445639288968, guid: e3ed70573beef2f408c62788bfae251b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6351516445639288968, guid: e3ed70573beef2f408c62788bfae251b, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: e3ed70573beef2f408c62788bfae251b, type: 3}
 --- !u!1 &488311163
 GameObject:
   m_ObjectHideFlags: 0
@@ -1737,7 +1725,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3cb7c7e7bbcea340939ee3a3fae6a3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraFollowFemale
-  target: {fileID: 1917236967}
+  target: {fileID: 720590404}
   smoothTime: 0.15
   offset: {x: 0, y: 1, z: -10}
 --- !u!114 &519420034
@@ -2874,6 +2862,11 @@ EdgeCollider2D:
   m_AdjacentEndPoint: {x: 0, y: 0}
   m_UseAdjacentStartPoint: 0
   m_UseAdjacentEndPoint: 0
+--- !u!4 &720590404 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1262393264283408198, guid: 02f4719a68e88f44e9107f3ff19f52f8, type: 3}
+  m_PrefabInstance: {fileID: 163095482}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &805757965
 GameObject:
   m_ObjectHideFlags: 0
@@ -3933,6 +3926,11 @@ Transform:
   - {fileID: 685781518}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &1121581861 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 1692167201912390251, guid: 02f4719a68e88f44e9107f3ff19f52f8, type: 3}
+  m_PrefabInstance: {fileID: 163095482}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1182139366
 GameObject:
   m_ObjectHideFlags: 0
@@ -4765,7 +4763,7 @@ MonoBehaviour:
   lines:
   - Do we even drink tea?
   - I mean do we even CAPABLE!!
-  player: {fileID: 1917236967}
+  player: {fileID: 0}
   fontAsset: {fileID: 11400000, guid: 81db8b07940d89a42a6d1f2e4922420c, type: 2}
   labelHeightOffset: 1.8
   labelScale: 0.01
@@ -5592,7 +5590,7 @@ MonoBehaviour:
   - You dont belong here
   - Anyway if you want go to THE RAM
   - Just go left side of the desk and press E
-  player: {fileID: 1917236967}
+  player: {fileID: 0}
   fontAsset: {fileID: 11400000, guid: 81db8b07940d89a42a6d1f2e4922420c, type: 2}
   labelHeightOffset: 1.8
   labelScale: 0.01
@@ -5987,7 +5985,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RobotLabel
   lines: []
   interactionRadius: 3
-  player: {fileID: 1917236967}
+  player: {fileID: 0}
   tmpText: {fileID: 0}
   fontAsset: {fileID: 11400000, guid: 81db8b07940d89a42a6d1f2e4922420c, type: 2}
   textColor: {r: 0, g: 1, b: 0.53, a: 1}
@@ -6012,7 +6010,7 @@ MonoBehaviour:
   interactionDistance: 2
   lines:
   - Woooooow
-  player: {fileID: 1917236967}
+  player: {fileID: 0}
   fontAsset: {fileID: 11400000, guid: 81db8b07940d89a42a6d1f2e4922420c, type: 2}
   labelHeightOffset: 1.8
   labelScale: 0.01
@@ -6129,7 +6127,7 @@ MonoBehaviour:
   - I got better shit to sell
   - Just felt of the cpu
   - Dont buy from him
-  player: {fileID: 1917236967}
+  player: {fileID: 0}
   fontAsset: {fileID: 11400000, guid: 81db8b07940d89a42a6d1f2e4922420c, type: 2}
   labelHeightOffset: 1.8
   labelScale: 0.01
@@ -6315,11 +6313,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &1917236967 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 6351516445639288968, guid: e3ed70573beef2f408c62788bfae251b, type: 3}
-  m_PrefabInstance: {fileID: 484557692}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1934667197
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6927,9 +6920,9 @@ SceneRoots:
   - {fileID: 2108624477}
   - {fileID: 2104246591}
   - {fileID: 1027405292}
-  - {fileID: 484557692}
   - {fileID: 262485262}
   - {fileID: 1693772865}
   - {fileID: 700768972}
   - {fileID: 1513168942}
   - {fileID: 1655922616}
+  - {fileID: 163095482}

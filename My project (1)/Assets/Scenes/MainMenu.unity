@@ -1908,7 +1908,7 @@ MonoBehaviour:
   matrixRows: 24
   fadeImage: {fileID: 27276001}
   tvDuration: 0.45
-  gameSceneName: Ram R_
+  gameSceneName: OgreticiSahne
 --- !u!1 &1704439844
 GameObject:
   m_ObjectHideFlags: 0

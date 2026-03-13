@@ -60,10 +60,24 @@ public static class WalletConnectBridge
                     iconUrl: "https://glitchrunner.example.com/logo.png"
                 );
 
+                // Avalanche Fuji (eip155:43113) — oyun token'ı bu ağda; cüzdan ETH yerine Fuji'ye geçsin
+                var avalancheFuji = new Chain(
+                    ChainConstants.Namespaces.Evm,
+                    chainReference: "43113",
+                    name: "Avalanche Fuji",
+                    nativeCurrency: new Currency("Avalanche", "AVAX", 18),
+                    blockExplorer: new BlockExplorer("Snowtrace", "https://testnet.snowtrace.io"),
+                    rpcUrl: "https://api.avax-test.network/ext/bc/C/rpc",
+                    isTestnet: true,
+                    imageUrl: "https://avatars.githubusercontent.com/u/42355201?s=200&v=4"
+                );
                 var config = new AppKitConfig(
                     projectId: EnvLoader.Get("REOWN_PROJECT_ID", "98c021d7980856feb52faa0f9c1d314c"),
                     metadata: metadata
-                );
+                )
+                {
+                    supportedChains = new[] { avalancheFuji }
+                };
 
                 await AppKit.InitializeAsync(config);
             }

@@ -18,9 +18,16 @@ public class AsılScript : MonoBehaviour
     public GameObject inventoryPanel; // LÜTFEN INSPECTOR'DAN PANELİ BURAYA SÜRÜKLE
     private bool isInventoryOpen = false;
 
+    [Header("VFX (Child - gölge/toz)")]
+    [Tooltip("Child objesinin Animator'ı (Jump_Dust, Dash_Shadow, Death_Shadow vb.).")]
+    public Animator vfxAnimator;
+    [Tooltip("Child objesinin SpriteRenderer'ı (yön ile senkron için).")]
+    public SpriteRenderer vfxSr;
+
     private bool isDead = false;
     private Rigidbody2D rb;
     private Animator anim;
+    private SpriteRenderer sr;
     private Vector2 moveInput;
     private float currentSpeed;
     private int weaponType = 0; 
@@ -29,6 +36,7 @@ public class AsılScript : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
+        sr = GetComponent<SpriteRenderer>();
         currentAmmo = maxAmmo;
 
         // Oyun başlarken her şeyi sıfırla
@@ -58,23 +66,35 @@ public class AsılScript : MonoBehaviour
         moveInput.y = Input.GetAxisRaw("Vertical");
         moveInput = moveInput.normalized;
 
-        bool isRunning = Input.GetKey(KeyCode.R);
+        bool isRunning = Input.GetKey(KeyCode.LeftShift);
         currentSpeed = isRunning ? runSpeed : walkSpeed;
 
-        // --- 4. SİLAH DEĞİŞTİRME (sadece envanterde varsa) ---
+        // --- 4. SİLAH DEĞİŞTİRME (envanterde varsa F = silah, X = mızrak; 1 = silahsız) ---
         if (Input.GetKeyDown(KeyCode.Alpha1)) weaponType = 0;
-        if (Input.GetKeyDown(KeyCode.Alpha2) && GameState.Instance != null && GameState.Instance.HasItemInInventory("gun")) weaponType = 1;
-        if (Input.GetKeyDown(KeyCode.Alpha3) && GameState.Instance != null && GameState.Instance.HasItemInInventory("spear")) weaponType = 2;
+        if (Input.GetKeyDown(KeyCode.Alpha2) && GameState.Instance != null && GameState.Instance.HasItemInInventory("gun")) weaponType = 2;
+        if (Input.GetKeyDown(KeyCode.Alpha3) && GameState.Instance != null && GameState.Instance.HasItemInInventory("spear")) weaponType = 1;
+        if (Input.GetKeyDown(KeyCode.F) && GameState.Instance != null && GameState.Instance.HasItemInInventory("gun")) weaponType = 2;
+        if (Input.GetKeyDown(KeyCode.X) && GameState.Instance != null && GameState.Instance.HasItemInInventory("spear")) weaponType = 1;
 
-        // --- 5. DASH (Shift) ---
-        if (Input.GetKeyDown(KeyCode.LeftShift) && moveInput != Vector2.zero)
+        // --- 5. DASH (Ctrl) ---
+        if (Input.GetKeyDown(KeyCode.LeftControl) && moveInput != Vector2.zero)
         {
+            anim.SetInteger("WeaponType", weaponType);
             anim.SetTrigger("doDash");
             rb.AddForce(moveInput * dashForce, ForceMode2D.Impulse);
+            if (vfxAnimator != null) vfxAnimator.SetTrigger("playDashShadow");
         }
 
         // --- 6. ZIPLAMA (Space) ---
-        if (Input.GetKeyDown(KeyCode.Space)) anim.SetTrigger("doJump");
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            anim.SetTrigger("doJump");
+            if (vfxAnimator != null)
+            {
+                vfxAnimator.SetTrigger("playJumpDust");
+                vfxAnimator.SetTrigger("playJumpShadow");
+            }
+        }
 
         // --- 7. ATEŞ / SALDIRI ---
         HandleAttack();
@@ -116,7 +136,7 @@ public class AsılScript : MonoBehaviour
 
     void HandleAttack()
     {
-        if (weaponType == 1) // GUN
+        if (weaponType == 2) // GUN
         {
             if (Input.GetMouseButton(0) && currentAmmo > 0 && !isReloading)
             {
@@ -130,10 +150,11 @@ public class AsılScript : MonoBehaviour
 
             if ((currentAmmo <= 0 || (Input.GetKeyDown(KeyCode.R) && currentAmmo < maxAmmo)) && !isReloading)
             {
+                anim.SetTrigger("doReload");
                 StartCoroutine(ReloadRoutine());
             }
         }
-        else if (weaponType == 2) // SPEAR
+        else if (weaponType == 1) // SPEAR
         {
             if (Input.GetMouseButtonDown(0)) anim.SetTrigger("doAttack");
         }
@@ -171,6 +192,12 @@ public class AsılScript : MonoBehaviour
     IEnumerator DieAndRespawn()
     {
         isDead = true;
+        if (vfxAnimator != null)
+        {
+            if (weaponType == 0) vfxAnimator.SetTrigger("playDeathNormal");
+            else if (weaponType == 1) vfxAnimator.SetTrigger("playDeathSpear");
+            else if (weaponType == 2) vfxAnimator.SetTrigger("playDeathGun");
+        }
         if (anim != null)
         {
             anim.SetBool("isDead", true);
@@ -192,12 +219,34 @@ public class AsılScript : MonoBehaviour
 
     void UpdateAnimator()
     {
-        anim.SetFloat("MoveX", moveInput.x);
-        anim.SetFloat("MoveY", moveInput.y);
+        if (moveInput.x != 0f || moveInput.y != 0f)
+        {
+            // Tam yatay (sadece sağ/sol) → MoveY = 0, böylece sağ-yukarı değil düz sağ kullanılır
+            if (moveInput.y == 0f)
+            {
+                anim.SetFloat("MoveX", moveInput.x);
+                anim.SetFloat("MoveY", 0f);
+            }
+            // Tam dikey (sadece yukarı/aşağı) → MoveX = 0
+            else if (moveInput.x == 0f)
+            {
+                anim.SetFloat("MoveX", 0f);
+                anim.SetFloat("MoveY", moveInput.y);
+            }
+            // Çapraz (sağ-aşağı, sol-yukarı vb.) → ikisini de ver, right-down vb. animasyonlar çalışsın
+            else
+            {
+                anim.SetFloat("MoveX", moveInput.x);
+                anim.SetFloat("MoveY", moveInput.y);
+            }
+        }
         float animSpeed = moveInput.magnitude;
-        if (animSpeed > 0) animSpeed = Input.GetKey(KeyCode.R) ? 1f : 0.5f;
+        if (animSpeed > 0) animSpeed = Input.GetKey(KeyCode.LeftShift) ? 1f : 0.5f;
         anim.SetFloat("Speed", animSpeed);
         anim.SetInteger("WeaponType", weaponType);
         anim.SetBool("isAiming", Input.GetMouseButton(1));
+
+        if (vfxSr != null && sr != null)
+            vfxSr.flipX = sr.flipX;
     }
 }
